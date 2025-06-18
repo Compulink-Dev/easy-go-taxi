@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { LoadScript, GoogleMap, Marker } from "@react-google-maps/api";
+import { log } from "console";
 
 const containerStyle = {
   width: "100%",
@@ -50,6 +51,7 @@ const LiveTracking = () => {
     updatePosition(); // Initial position update
 
     const intervalId = setInterval(updatePosition, 1000); // Update every 10 seconds
+    log(intervalId);
   }, []);
 
   return (

@@ -3,7 +3,6 @@ import { Link } from "react-router";
 import DriverDetails from "../../components/DriverDetails";
 import RidePopUp from "../../components/RidePopUp";
 import { useGSAP } from "@gsap/react";
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import gsap from "gsap";
 import ConfirmRidePopUp from "../../components/ConfirmRidePopUp";
 import { useEffect, useContext } from "react";
@@ -16,16 +15,6 @@ interface Ride {
   // ... other fields
 }
 
-const mapContainerStyle = {
-  width: "100%",
-  height: "60vh", // Matches your h-3/5 class
-};
-
-const center = {
-  lat: 0, // Default center, you'll update this with real location
-  lng: 0,
-};
-
 const DriverHome = () => {
   const [ridePopupPanel, setRidePopupPanel] = useState(false);
   const [confirmRidePopupPanel, setConfirmRidePopupPanel] = useState(false);
@@ -33,9 +22,6 @@ const DriverHome = () => {
   const ridePopupPanelRef = useRef(null);
   const confirmRidePopupPanelRef = useRef(null);
   const [ride, setRide] = useState<Ride | null>(null);
-
-  const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [currentLocation, setCurrentLocation] = useState(center);
 
   const { socket } = useContext(SocketContext);
   const { driver } = useContext(DriverDataContext);

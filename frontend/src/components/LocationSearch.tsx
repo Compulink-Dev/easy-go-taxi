@@ -1,7 +1,7 @@
 const LocationSearchPanel = ({
   suggestions,
-  setVehiclePanel,
-  setPanelOpen,
+  // setVehiclePanel,
+  // setPanelOpen,
   setPickup,
   setDestination,
   activeField,
