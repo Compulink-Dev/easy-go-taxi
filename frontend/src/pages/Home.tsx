@@ -224,6 +224,8 @@ const Home = () => {
         },
       }
     );
+
+    console.log(response);
   }
 
   return (

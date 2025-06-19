@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router"; // Added useLocation
-import { useEffect, useContext } from "react";
+import { useContext } from "react";
 import { SocketContext } from "../context/SocketContext";
 import { useNavigate } from "react-router";
 import LiveTracking from "../components/LiveTracking";

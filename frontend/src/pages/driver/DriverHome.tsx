@@ -43,6 +43,8 @@ const DriverHome = () => {
   //   );
   // }
 
+  console.log(error);
+
   // Confirm ride function
   const confirmRide = async () => {
     if (!ride || !driver) return;

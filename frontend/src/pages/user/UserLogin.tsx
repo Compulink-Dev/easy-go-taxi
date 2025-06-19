@@ -11,10 +11,11 @@ import { Button } from "@/components/ui/button";
 const UserLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [userData, setUserData] = useState({});
 
   const { user, setUser } = useContext(UserDataContext);
   const navigate = useNavigate();
+
+  console.log(user);
 
   const submitHandler = async (e: any) => {
     e.preventDefault();
