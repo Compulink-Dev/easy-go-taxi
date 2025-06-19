@@ -2,7 +2,7 @@ const axios = require("axios");
 const driverModel = require("../models/driver.model");
 
 module.exports.getAddressCoordinate = async (address) => {
-  const apiKey = process.env.GOOGLE_MAPS_API;
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
     address
   )}&key=${apiKey}`;
@@ -29,7 +29,7 @@ module.exports.getDistanceTime = async (origin, destination) => {
     throw new Error("Origin and destination are required");
   }
 
-  const apiKey = process.env.GOOGLE_MAPS_API;
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
 
   const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(
     origin
@@ -57,7 +57,7 @@ module.exports.getAutoCompleteSuggestions = async (input) => {
     throw new Error("query is required");
   }
 
-  const apiKey = process.env.GOOGLE_MAPS_API;
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
   const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(
     input
   )}&key=${apiKey}`;
@@ -77,7 +77,7 @@ module.exports.getAutoCompleteSuggestions = async (input) => {
   }
 };
 
-module.exports.getCaptainsInTheRadius = async (ltd, lng, radius) => {
+module.exports.getDriversInTheRadius = async (ltd, lng, radius) => {
   // radius in km
 
   const drivers = await driverModel.find({

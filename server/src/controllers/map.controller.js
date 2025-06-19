@@ -39,16 +39,34 @@ module.exports.getAutoCompleteSuggestions = async (req, res, next) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
+      return res.status(400).json({
+        errors: errors.array(),
+        message: "Validation failed",
+      });
     }
 
     const { input } = req.query;
 
+    if (!input || input.length < 2) {
+      return res.status(400).json({
+        message: "Input must be at least 2 characters long",
+      });
+    }
+
     const suggestions = await mapService.getAutoCompleteSuggestions(input);
+
+    if (!suggestions || suggestions.length === 0) {
+      return res.status(404).json({
+        message: "No suggestions found",
+      });
+    }
 
     res.status(200).json(suggestions);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Internal server error" });
+    console.error("Autocomplete error:", err);
+    res.status(500).json({
+      message: "Failed to fetch suggestions",
+      error: err.message,
+    });
   }
 };

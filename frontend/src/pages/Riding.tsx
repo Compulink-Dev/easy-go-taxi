@@ -34,10 +34,10 @@ const Riding = () => {
           />
           <div className="text-right">
             <h2 className="text-lg font-medium capitalize">
-              {ride?.captain.fullname.firstname}
+              {ride?.driver.fullname.firstname}
             </h2>
             <h4 className="text-xl font-semibold -mt-1 -mb-1">
-              {ride?.captain.vehicle.plate}
+              {ride?.driver.vehicle.plate}
             </h4>
             <p className="text-sm text-gray-600">Maruti Suzuki Alto</p>
           </div>

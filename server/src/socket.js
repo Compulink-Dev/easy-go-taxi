@@ -1,6 +1,6 @@
 const socketIo = require("socket.io");
 const userModel = require("./models/user.model");
-const captainModel = require("./models/driver.model");
+const driverModel = require("./models/driver.model");
 
 let io;
 
@@ -15,24 +15,40 @@ function initializeSocket(server) {
   io.on("connection", (socket) => {
     console.log(`Client connected: ${socket.id}`);
 
-    socket.on("join", async (data) => {
-      const { userId, userType } = data;
+    // Add middleware for validation
+    socket.use(([event, data], next) => {
+      if (event === "update-location-driver") {
+        if (!validateLocation(data.location)) {
+          return next(new Error("Invalid location data"));
+        }
+      }
+      next();
+    });
 
-      if (userType === "user") {
-        await userModel.findByIdAndUpdate(userId, { socketId: socket.id });
-      } else if (userType === "captain") {
-        await captainModel.findByIdAndUpdate(userId, { socketId: socket.id });
+    socket.on("join", async (data, callback) => {
+      try {
+        // Validate input
+        if (!data.userId || !data.userType) {
+          throw new Error("Missing required fields");
+        }
+
+        // Update database
+        const updated = await updateDriverSocket(data.userId, socket.id);
+
+        callback({ status: "success", updated });
+      } catch (err) {
+        callback({ status: "error", message: err.message });
       }
     });
 
-    socket.on("update-location-captain", async (data) => {
+    socket.on("update-location-driver", async (data) => {
       const { userId, location } = data;
 
       if (!location || !location.ltd || !location.lng) {
         return socket.emit("error", { message: "Invalid location data" });
       }
 
-      await captainModel.findByIdAndUpdate(userId, {
+      await driverModel.findByIdAndUpdate(userId, {
         location: {
           ltd: location.ltd,
           lng: location.lng,

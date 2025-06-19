@@ -6,7 +6,7 @@ import axios from "axios";
 const DriverProtectWrapper = ({ children }: { children: React.ReactNode }) => {
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
-  const { driver, setDriver } = useContext(DriverDataContext);
+  const { setDriver } = useContext(DriverDataContext);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -26,7 +26,9 @@ const DriverProtectWrapper = ({ children }: { children: React.ReactNode }) => {
           setIsLoading(false);
         }
       })
-      .catch((err) => {
+      .catch((err: any) => {
+        console.log("Error from wrapper : ", err.message);
+
         localStorage.removeItem("token");
         navigate("/driver-login");
       });

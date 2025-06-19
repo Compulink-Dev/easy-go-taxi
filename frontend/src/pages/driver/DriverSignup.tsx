@@ -21,7 +21,7 @@ const DriverSignup = () => {
   const [vehicleCapacity, setVehicleCapacity] = useState("");
   const [vehicleType, setVehicleType] = useState("");
 
-  const { driver, setDriver } = React.useContext(DriverDataContext);
+  const { setDriver } = React.useContext(DriverDataContext);
 
   const submitHandler = async (e: any) => {
     e.preventDefault();

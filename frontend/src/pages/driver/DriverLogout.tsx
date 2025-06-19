@@ -1,9 +1,8 @@
-import React from "react";
 import axios from "axios";
 import { useNavigate } from "react-router";
 
 export const DriveLogout = () => {
-  const token = localStorage.getItem("captain-token");
+  const token = localStorage.getItem("driver-token");
   const navigate = useNavigate();
 
   axios

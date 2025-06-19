@@ -9,6 +9,8 @@ import { useEffect, useContext } from "react";
 import { SocketContext } from "../../context/SocketContext";
 import { DriverDataContext } from "../../context/DriverContext";
 import axios from "axios";
+import Title from "@/components/Title";
+import { LogOut } from "lucide-react";
 
 interface Ride {
   _id: string;
@@ -18,84 +20,28 @@ interface Ride {
 const DriverHome = () => {
   const [ridePopupPanel, setRidePopupPanel] = useState(false);
   const [confirmRidePopupPanel, setConfirmRidePopupPanel] = useState(false);
-
   const ridePopupPanelRef = useRef(null);
   const confirmRidePopupPanelRef = useRef(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [ride, setRide] = useState<Ride | null>(null);
-
   const { socket } = useContext(SocketContext);
   const { driver } = useContext(DriverDataContext);
 
+  console.log("Driver :", driver);
+  console.log("Socket :", socket);
+
   // Show loading state if driver data isn't available yet
-  if (!driver || !socket) {
-    return (
-      <div className="h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
-          <p>Connecting to driver services...</p>
-        </div>
-      </div>
-    );
-  }
-
-  useEffect(() => {
-    if (!socket || !driver) return; // Additional safety check
-
-    socket?.emit("join", {
-      userId: driver._id,
-      userType: "driver",
-    });
-    const updateLocation = () => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            socket?.emit("update-location-driver", {
-              userId: driver._id,
-              location: {
-                ltd: position.coords.latitude,
-                lng: position.coords.longitude,
-              },
-            });
-          },
-          (error) => {
-            console.error("Geolocation error:", error);
-          },
-          { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-        );
-      }
-    };
-
-    // Initial update and set interval
-    const locationInterval = setInterval(updateLocation, 10000);
-    updateLocation();
-
-    // Cleanup
-    return () => {
-      clearInterval(locationInterval);
-      socket.emit("leave", { userId: driver._id });
-    };
-  }, [socket, driver]);
-
-  // Socket listener should be inside useEffect to avoid multiple registrations
-  useEffect(() => {
-    if (!socket) return;
-
-    const handleNewRide = (data: Ride) => {
-      setRide(data);
-      setRidePopupPanel(true);
-    };
-
-    socket.on("new-ride", handleNewRide);
-
-    return () => {
-      socket.off("new-ride", handleNewRide);
-    };
-  }, [socket]);
-
-  socket?.on("new-ride", (data) => {
-    setRide(data);
-    setRidePopupPanel(true);
-  });
+  // if (!driver || !socket) {
+  //   return (
+  //     <div className="h-screen flex items-center justify-center">
+  //       <div className="text-center">
+  //         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+  //         <p>Connecting to driver services...</p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   // Confirm ride function
   const confirmRide = async () => {
@@ -138,19 +84,102 @@ const DriverHome = () => {
     });
   }, [confirmRidePopupPanel]);
 
+  useEffect(() => {
+    if (!socket || !driver) {
+      setLoading(false);
+      return;
+    }
+
+    socket?.emit("join", {
+      userId: driver._id,
+      userType: "driver",
+    });
+
+    const handleConnection = async () => {
+      try {
+        await socket.emitWithAck("join", {
+          userId: driver._id,
+          userType: "driver",
+        });
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to connect to driver services");
+        setLoading(false);
+      }
+    };
+
+    const updateLocation = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            socket?.emit("update-location-driver", {
+              userId: driver._id,
+              location: {
+                ltd: position.coords.latitude,
+                lng: position.coords.longitude,
+              },
+            });
+          },
+          (error) => {
+            console.error("Geolocation error:", error);
+          },
+          { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+        );
+      }
+    };
+
+    // Initial update and set interval
+    const locationInterval = setInterval(updateLocation, 10000);
+    updateLocation();
+
+    handleConnection();
+    // Cleanup
+    return () => {
+      clearInterval(locationInterval);
+      socket.emit("leave", { userId: driver._id });
+    };
+  }, [socket, driver]);
+
+  // Socket listener should be inside useEffect to avoid multiple registrations
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleNewRide = (data: Ride) => {
+      setRide(data);
+      setRidePopupPanel(true);
+    };
+    socket?.on("new-ride", (data) => {
+      setRide(data);
+      setRidePopupPanel(true);
+    });
+
+    return () => {
+      socket.off("new-ride", handleNewRide);
+    };
+  }, [socket]);
+
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto mb-4"></div>
+          <p>Connecting to driver services...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-screen">
-      <div className="fixed p-6 top-0 flex items-center justify-between w-screen">
-        <img
-          className="w-16"
-          src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png"
-          alt=""
-        />
+      <div className="fixed top-0 right-0 flex items-center justify-between w-full px-4">
+        <div className="my-4">
+          <Title />
+        </div>
         <Link
           to="/driver-home"
-          className=" h-10 w-10 bg-white flex items-center justify-center rounded-full"
+          className=" h-8 w-8 bg-yellow-400 flex items-center justify-center rounded-full"
         >
-          <i className="text-lg font-medium ri-logout-box-r-line"></i>
+          <LogOut size={14} className="text-black" />
         </Link>
       </div>
       <div className="h-3/5">

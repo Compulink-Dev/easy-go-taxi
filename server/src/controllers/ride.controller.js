@@ -23,7 +23,7 @@ module.exports.createRide = async (req, res) => {
 
     const pickupCoordinates = await mapService.getAddressCoordinate(pickup);
 
-    const captainsInRadius = await mapService.getCaptainsInTheRadius(
+    const driversInRadius = await mapService.getDriversInTheRadius(
       pickupCoordinates.ltd,
       pickupCoordinates.lng,
       2
@@ -35,8 +35,8 @@ module.exports.createRide = async (req, res) => {
       .findOne({ _id: ride._id })
       .populate("user");
 
-    captainsInRadius.map((captain) => {
-      sendMessageToSocketId(captain.socketId, {
+    driversInRadius.map((driver) => {
+      sendMessageToSocketId(driver.socketId, {
         event: "new-ride",
         data: rideWithUser,
       });
@@ -74,7 +74,7 @@ module.exports.confirmRide = async (req, res) => {
   try {
     const ride = await rideService.confirmRide({
       rideId,
-      captain: req.captain,
+      driver: req.driver,
     });
 
     sendMessageToSocketId(ride.user.socketId, {
@@ -101,7 +101,7 @@ module.exports.startRide = async (req, res) => {
     const ride = await rideService.startRide({
       rideId,
       otp,
-      captain: req.captain,
+      driver: req.driver,
     });
 
     console.log(ride);
@@ -126,7 +126,7 @@ module.exports.endRide = async (req, res) => {
   const { rideId } = req.body;
 
   try {
-    const ride = await rideService.endRide({ rideId, captain: req.captain });
+    const ride = await rideService.endRide({ rideId, driver: req.driver });
 
     sendMessageToSocketId(ride.user.socketId, {
       event: "ride-ended",

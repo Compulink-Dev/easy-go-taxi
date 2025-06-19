@@ -12,7 +12,7 @@ const DriverLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const { driver, setDriver } = React.useContext(DriverDataContext);
+  const { setDriver } = React.useContext(DriverDataContext);
   const navigate = useNavigate();
 
   const submitHandler = async (e: any) => {
